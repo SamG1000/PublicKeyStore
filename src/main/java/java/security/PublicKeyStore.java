@@ -1,17 +1,9 @@
 package java.security;
 
-import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Public Key Store implementing {@link KeyResolver} interface. Since this Key
@@ -21,8 +13,6 @@ import com.google.common.collect.ImmutableMap;
  * @author Simon Galperin
  */
 public class PublicKeyStore implements Iterable<Entry<String, PublicKey>> {
-	private final static Logger log = LoggerFactory.getLogger(PublicKeyStore.class);
-
 	private final Map<String, PublicKey> keyStore;
 
 	// key store is new, therefore it is not changed
@@ -45,10 +35,17 @@ public class PublicKeyStore implements Iterable<Entry<String, PublicKey>> {
 	 *            {@link PublicKey} to add
 	 */
 	public synchronized void add(String alias, PublicKey key) {
+		if (alias == null) {
+			throw new IllegalArgumentException("Alias is required");
+		}
+		if (key == null) {
+			throw new IllegalArgumentException("Key is required");
+		}
+
 		// only add initial key if it does not already exist
 		if (keyStore.containsKey(alias)) {
 			PublicKey publicKey = keyStore.get(alias);
-			if (!Objects.equal(key, publicKey)) {
+			if (!key.equals(publicKey)) {
 				keyStore.put(alias, key);
 				this.changed = true;
 			}
@@ -104,11 +101,8 @@ public class PublicKeyStore implements Iterable<Entry<String, PublicKey>> {
 	 *         identified.
 	 */
 	public PublicKey findKey(String alias) {
-		if (Strings.isNullOrEmpty(alias)) {
-			if (log.isWarnEnabled()) {
-				log.warn("Key name can't be null, failed to resolve the key");
-			}
-			return null;
+		if (alias == null) {
+			throw new IllegalArgumentException("Alias may not be null");
 		}
 
 		synchronized (this) {
@@ -123,7 +117,16 @@ public class PublicKeyStore implements Iterable<Entry<String, PublicKey>> {
 	 */
 	@Override
 	public synchronized Iterator<Entry<String, PublicKey>> iterator() {
-		ImmutableMap<String, PublicKey> map = ImmutableMap.copyOf(keyStore);
-		return map.entrySet().iterator();
+		final Iterator<Entry<String, PublicKey>> iterator = keyStore.entrySet().iterator();
+
+		// create an imutable iterator
+		return new Iterator<Map.Entry<String,PublicKey>>() {
+			@Override
+			public boolean hasNext() { return iterator.hasNext(); }
+			@Override
+			public Entry<String, PublicKey> next() { return iterator.next(); }
+			@Override
+			public void remove() {}
+		};
 	}
 }

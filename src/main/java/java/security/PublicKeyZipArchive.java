@@ -19,13 +19,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
-import com.google.common.base.Verify;
-
-
 /**
  * {@link PublicKeyArchive} using {@link ZipFile} implementation.
  * 
@@ -36,34 +29,22 @@ import com.google.common.base.Verify;
  * @author Simon Galperin
  */
 public class PublicKeyZipArchive implements PublicKeyArchive {
-	private final static Logger logger = LoggerFactory.getLogger(PublicKeyZipArchive.class);
-	
 	private final File file;
 	
 	/**
 	 * @param filename
 	 */
 	public PublicKeyZipArchive(String filename) {
-		Verify.verifyNotNull(filename, "filename is required");
-		Verify.verify(isValid(filename), "Unable to read or write the store file: " + filename);
+		if (!isValid(filename)) {
+			throw new IllegalArgumentException("Filename is missing or invalid");
+		}
 		
 		this.file = new File(filename);
 		
 	}
 
-	private static boolean isValid(String filename) {
-		try {
-			Paths.get(filename);
-			return true;
-		} catch (InvalidPathException e) {
-			return false;
-		}
-	}
-	
 	@Override
 	public void update(PublicKeyStore keyStore) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-		logger.debug("Update public keys from {} archive", file);
-
 		FileInputStream stream = new FileInputStream(file);
 		try {
 			// input file
@@ -83,7 +64,7 @@ public class PublicKeyZipArchive implements PublicKeyArchive {
 					
 					byte[] algorithmBytes = entry.getExtra();
 					if (algorithmBytes != null) {
-						if (!Strings.isNullOrEmpty(algorithm)) {
+						if (algorithm != null && !algorithm.trim().equals("")) {
 							algorithm = new String(algorithmBytes);
 						}
 					}
@@ -105,7 +86,6 @@ public class PublicKeyZipArchive implements PublicKeyArchive {
 	 * @see com.comcast.x1.sat.PublicKeyArchive#load(com.comcast.x1.sat.PublicKeyStore)
 	 */
 	public void load(PublicKeyStore keyStore) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-		logger.debug("Loading public keys from {} archive", file);
 		keyStore.clear();
 		
 		update(keyStore);
@@ -115,8 +95,6 @@ public class PublicKeyZipArchive implements PublicKeyArchive {
 	 * @see com.comcast.x1.sat.PublicKeyArchive#store(com.comcast.x1.sat.PublicKeyStore)
 	 */
 	public void store(PublicKeyStore keyStore) throws IOException {
-		logger.debug("Storing public keys in {} archive", file);
-		
 		FileOutputStream stream = new FileOutputStream(file);
 		try {
 			// out put file
@@ -128,8 +106,6 @@ public class PublicKeyZipArchive implements PublicKeyArchive {
 					String alias = keyEntry.getKey();
 					PublicKey publicKey = keyEntry.getValue();
 					String algorithm = publicKey.getAlgorithm();
-					
-					logger.debug("Adding {} public key with {} algorithm", alias, algorithm);
 					
 					ZipEntry entry = new ZipEntry(alias);
 					entry.setExtra(algorithm.getBytes());
@@ -150,4 +126,12 @@ public class PublicKeyZipArchive implements PublicKeyArchive {
 		}
 	}
 
+	private static boolean isValid(String filename) {
+		try {
+			Paths.get(filename);
+			return true;
+		} catch (InvalidPathException e) {
+			return false;
+		}
+	}	
 }

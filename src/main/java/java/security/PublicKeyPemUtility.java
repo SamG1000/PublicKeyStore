@@ -5,19 +5,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.Writer;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Scanner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Splitter;
-import com.google.common.io.BaseEncoding;
-import com.google.common.io.CharStreams;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * Utility class responsible for paring ".pem" or ".pub" files that have base-64
@@ -32,7 +26,6 @@ import com.google.common.io.CharStreams;
  * @author Simon Galperin
  */
 public abstract class PublicKeyPemUtility {
-	private final static Logger logger = LoggerFactory.getLogger(PublicKeyPemUtility.class);
 	private final static String PUBLIC_KEY_PREFIX = "-----BEGIN PUBLIC KEY-----";
 	private final static String PUBLIC_KEY_SUFFIX = "-----END PUBLIC KEY-----";
 
@@ -52,6 +45,25 @@ public abstract class PublicKeyPemUtility {
 	 */
 	public static PublicKey readKey(File path) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
 		return readKey(new FileReader(path), "RSA");
+	}
+
+	/**
+	 * Parse PEM string looking for a public key.
+	 * 
+	 * @param pem
+	 *            The Base 64 encoded Public Key (as listed above)
+	 * @param algorithm
+	 *            The algorithm of the key
+	 * @return instance of {@link PublicKey}
+	 * @throws InvalidKeySpecException
+	 *             if the given key specification is inappropriate for this key
+	 *             factory to produce a public key.
+	 * @throws NoSuchAlgorithmException
+	 *             if no Provider supports a KeyFactorySpi implementation for
+	 *             the specified algorithm.
+	 */
+	public static PublicKey extractKey(String pem, String algorithm) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		return readKey(new StringReader(pem), algorithm);
 	}
 
 	/**
@@ -78,6 +90,31 @@ public abstract class PublicKeyPemUtility {
 	}
 
 	/**
+	 * Parse PEM string looking for a public key.
+	 * 
+	 * @param pem
+	 *            The Base 64 encoded Public Key (as listed above)
+	 * @param algorithm
+	 *            The algorithm of the key
+	 * @return instance of {@link PublicKey}
+	 * @throws IOException
+	 */
+	public static void writeKey(PublicKey publicKey, Writer writer) throws IOException {
+		writer.write(PUBLIC_KEY_PREFIX);
+		writer.write('\n');
+		String base64 = generateBase64(publicKey);
+		char[] charArray = base64.toCharArray();
+		
+		for (int i = 0; i < charArray.length; i+=64) {
+			int length = Math.min(charArray.length - i, 64);
+			writer.write(charArray, i, length);
+			writer.write('\n');
+		}
+		writer.write(PUBLIC_KEY_SUFFIX);
+		writer.write("\n");
+	}
+
+	/**
 	 * Load given file path as a PEM string looking for a public key.
 	 * 
 	 * @param path
@@ -93,75 +130,48 @@ public abstract class PublicKeyPemUtility {
 	 *             if no Provider supports a KeyFactorySpi implementation for
 	 *             the specified algorithm.
 	 */
-	public static PublicKey readKey(Reader reader, String algorithm) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-		String pem = CharStreams.toString(reader);
-		return extractKey(pem, algorithm);
-	}
+	public static PublicKey readKey(Reader reader, String algorithm) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		Scanner scanner = new Scanner(reader);
+		try {
+			scanner.useDelimiter("\n");
 
-	/**
-	 * Parse PEM string looking for a public key.
-	 * 
-	 * @param pem
-	 *            The Base 64 encoded Public Key (as listed above)
-	 * @param algorithm
-	 *            The algorithm of the key
-	 * @return instance of {@link PublicKey}
-	 * @throws IOException
-	 */
-	public static void writeKey(PublicKey publicKey, Writer writer) throws IOException {
-		writer.append(PUBLIC_KEY_PREFIX).append("\n");
-		String base64 = generateBase64(publicKey);
-		Iterable<String> lines = Splitter.fixedLength(64).split(base64);
-		for (String line : lines) {
-			writer.append(line).append('\n');
+			StringBuilder builder = new StringBuilder();
+			
+			String line = scanner.next();
+	
+			// remove PREFIX if any
+			if (line.equals(PUBLIC_KEY_PREFIX)) {
+				line = scanner.next();
+			} else {
+				builder.append(line);
+			}
+			
+			while (scanner.hasNext()) {
+				line = scanner.next();
+				if (line.equals(PUBLIC_KEY_SUFFIX)) {
+					break;
+				}
+				builder.append(scanner.next());
+			}
+			
+			// all whitespace if any
+			String pem = builder.toString().replaceAll("\\s", "");
+	
+			// generated public key
+			return generatePublicKey(pem, algorithm);
+		} finally {
+			scanner.close();
 		}
-		writer.append(PUBLIC_KEY_SUFFIX).append("\n");
-	}
-
-	/**
-	 * Parse PEM string looking for a public key.
-	 * 
-	 * @param pem
-	 *            The Base 64 encoded Public Key (as listed above)
-	 * @param algorithm
-	 *            The algorithm of the key
-	 * @return instance of {@link PublicKey}
-	 * @throws InvalidKeySpecException
-	 *             if the given key specification is inappropriate for this key
-	 *             factory to produce a public key.
-	 * @throws NoSuchAlgorithmException
-	 *             if no Provider supports a KeyFactorySpi implementation for
-	 *             the specified algorithm.
-	 */
-	public static PublicKey extractKey(String pem, String algorithm) throws NoSuchAlgorithmException, InvalidKeySpecException {
-		// remove PREFIX if any
-		if (pem.contains(PUBLIC_KEY_PREFIX)) {
-			pem = pem.replaceAll(PUBLIC_KEY_PREFIX, "");
-		} else {
-			logger.warn("Missing " + PUBLIC_KEY_PREFIX);
-		}
-		// remove SUFFIX if any
-		if (pem.contains(PUBLIC_KEY_SUFFIX)) {
-			pem = pem.replaceAll(PUBLIC_KEY_SUFFIX, "");
-		} else {
-			logger.warn("Missing " + PUBLIC_KEY_SUFFIX);
-		}
-		// all whitespace if any
-		pem = pem.replaceAll("\\s", "");
-
-		// generated public key
-		return generatePublicKey(pem, algorithm);
 	}
 
 	private static PublicKey generatePublicKey(String base64, String algorithm) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		KeyFactory keyfactory = KeyFactory.getInstance(algorithm);
-
-		byte[] data = BaseEncoding.base64().decode(base64);
+		byte[] data = DatatypeConverter.parseBase64Binary(base64);
 		X509EncodedKeySpec keyspec = new X509EncodedKeySpec(data);
 		return keyfactory.generatePublic(keyspec);
 	}
 
 	private static String generateBase64(PublicKey publicKey) {
-		return BaseEncoding.base64().encode(publicKey.getEncoded());
+		return DatatypeConverter.printBase64Binary(publicKey.getEncoded());
 	}
 }
