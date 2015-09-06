@@ -1,2 +1,2 @@
 # PublicKeyStore
-PublicKeyStore for Java
+Light keystore implementation for managing and storing only PublicKeys in Java
