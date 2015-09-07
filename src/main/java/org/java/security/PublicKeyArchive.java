@@ -1,4 +1,4 @@
-package java.security;
+package org.java.security;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

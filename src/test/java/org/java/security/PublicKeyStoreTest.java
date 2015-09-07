@@ -1,4 +1,4 @@
-package java.security;
+package org.java.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -8,10 +8,10 @@ import static org.junit.Assert.assertTrue;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
-import java.security.PublicKeyStore;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.java.security.PublicKeyStore;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,6 +53,16 @@ public class PublicKeyStoreTest {
 		assertEquals(expected1, actual);
 	}
 
+	@Test(expected=IllegalArgumentException.class)
+	public void testAddNullAlias() throws Exception {
+		keyStore.add(null, null);
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void testAddNullKey() throws Exception {
+		keyStore.add("test", null);
+	}
+
 	@Test
 	public void testAddDuplicate() throws Exception {
 		keyStore.add("test", expected1);
@@ -88,10 +98,9 @@ public class PublicKeyStoreTest {
 		assertEquals(expected1, actual);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void testFindKeyNull() throws Exception {
-		PublicKey actual = keyStore.findKey(null);
-		assertNull(actual);
+		keyStore.findKey(null);
 	}
 
 	@Test
@@ -117,7 +126,14 @@ public class PublicKeyStoreTest {
 		assertNull(keyStore.findKey("test"));
 		
 	}
-	
+
+	@Test
+	public void testRemoveUnknown() throws Exception {
+		assertFalse(keyStore.isChanged());
+		keyStore.remove("unknown");
+		assertFalse(keyStore.isChanged());
+	}
+
 	@Test
 	public void testIsChanged() throws Exception {
 		assertFalse(keyStore.isChanged());
@@ -135,7 +151,10 @@ public class PublicKeyStoreTest {
 			counter++;
 			iterator.next();
 		}
-		
+
+		// make sure remove does not do anything
+		iterator.remove();
+
 		return counter;
 	}
 }

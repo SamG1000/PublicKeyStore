@@ -1,4 +1,4 @@
-package java.security;
+package org.java.security;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,13 +60,14 @@ public class PublicKeyZipArchive implements PublicKeyArchive {
 				while (entry != null) {
 					String alias = entry.getName();
 					
-					String algorithm = "RSA";
+					String algorithm;
 					
+					// assume that extra bytes store the algorithm
 					byte[] algorithmBytes = entry.getExtra();
 					if (algorithmBytes != null) {
-						if (algorithm != null && !algorithm.trim().equals("")) {
-							algorithm = new String(algorithmBytes);
-						}
+						algorithm = new String(algorithmBytes);
+					} else {
+						algorithm = "RSA";
 					}
 					PublicKey publicKey = PublicKeyPemUtility.readKey(reader, algorithm);
 					keyStore.add(alias, publicKey);
@@ -113,7 +114,7 @@ public class PublicKeyZipArchive implements PublicKeyArchive {
 					out.putNextEntry(entry);
 					
 					
-					PublicKeyPemUtility.writeKey(publicKey, writer);
+					PublicKeyPemUtility.writeKey(writer, publicKey);
 					writer.flush();
 				}
 				

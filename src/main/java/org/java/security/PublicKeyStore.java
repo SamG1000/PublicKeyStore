@@ -1,5 +1,6 @@
-package java.security;
+package org.java.security;
 
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

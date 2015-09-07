@@ -1,9 +1,16 @@
-package java.security;
+package org.java.security;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PublicKey;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -47,7 +54,7 @@ public class PublicKeyZipArchiveTest {
 		assertEquals(expected2, keyStore.findKey("key2"));
 	}
 
-	@Test(expected=IOException.class)
+	@Test(expected=FileNotFoundException.class)
 	public void testLoadNotFound() throws Exception {
 		PublicKeyZipArchive archive = new PublicKeyZipArchive("fake");
 		
@@ -61,5 +68,11 @@ public class PublicKeyZipArchiveTest {
 		
 		PublicKeyStore keyStore = new PublicKeyStore();
 		archive.store(keyStore);
+	}
+	
+
+	@Test(expected=IllegalArgumentException.class)
+	public void testInvalidPath() throws Exception {
+		new PublicKeyZipArchive("::invalid::path");
 	}
 }
