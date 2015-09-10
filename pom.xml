@@ -99,8 +99,8 @@
 	</repositories>
 
 	<scm>
-		<connection>scm:git:git@github.com/PublicKey/PublicKeyStore.git</connection>
-		<developerConnection>scm:git:git@github.com/PublicKey/PublicKeyStore.git</developerConnection>
-		<url>scm:git:git@github.com/PublicKey/PublicKeyStore.git</url>
+		<url>https://github.com/PublicKey/PublicKeyStore.git</url>
+		<connection>scm:git:git://github.com/PublicKey/PublicKeyStore.git</connection>
+		<developerConnection>scm:git:git://github.com/PublicKey/PublicKeyStore.git</developerConnection>
 	</scm>
 </project>
