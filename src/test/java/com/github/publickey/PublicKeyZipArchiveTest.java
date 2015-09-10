@@ -1,4 +1,4 @@
-package org.java.security;
+package com.github.publickey;
 
 import static org.junit.Assert.assertEquals;
 
@@ -12,6 +12,9 @@ import java.security.PublicKey;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.github.publickey.PublicKeyStore;
+import com.github.publickey.PublicKeyZipArchive;
 
 public class PublicKeyZipArchiveTest {
 	private static PublicKey expected1;

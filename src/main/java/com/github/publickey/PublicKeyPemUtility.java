@@ -1,4 +1,4 @@
-package org.java.security;
+package com.github.publickey;
 
 import java.io.IOException;
 import java.io.Reader;

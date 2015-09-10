@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.java.security</groupId>
+	<groupId>com.github.publickey</groupId>
 	<artifactId>public-key-store</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0.0</version>
 	<name>Java PublicKeyStore Library</name>
-	<url>https://github.com/SamG1000/PublicKeyStore</url>
+	<url>https://github.com/PublicKey/PublicKeyStore</url>
 	
 	<properties>
 		<junit.version>4.11</junit.version>
@@ -15,7 +15,7 @@
 	</properties>
 	
 	<issueManagement>
-		<url>https://github.com/SamG1000/PublicKeyStore/issues</url>
+		<url>https://github.com/PublicKey/PublicKeyStore/issues</url>
 		<system>GitHub Issues</system>
 	</issueManagement>
 
@@ -76,16 +76,31 @@
 			</plugin>
 		</plugins>
 	</build>
-	
-    <repositories>
-        <repository>
-            <id>central</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>repo1</id>
+			<name>Maven Central Repository</name>
+			<url>scp://repo1.maven.org/maven2/</url>
+			<layout>default</layout>
+		</repository>
+	</distributionManagement>
+
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>Maven Repository Switchboard</name>
+			<layout>default</layout>
+			<url>http://repo1.maven.org/maven2/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<scm>
+		<connection>scm:git:git@github.com/PublicKey/PublicKeyStore.git</connection>
+		<developerConnection>scm:git:git@github.com/PublicKey/PublicKeyStore.git</developerConnection>
+		<url>scm:git:git@github.com/PublicKey/PublicKeyStore.git</url>
+	</scm>
 </project>

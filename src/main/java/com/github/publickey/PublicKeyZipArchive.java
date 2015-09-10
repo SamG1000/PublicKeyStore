@@ -1,4 +1,4 @@
-package org.java.security;
+package com.github.publickey;
 
 import java.io.File;
 import java.io.FileInputStream;

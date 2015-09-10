@@ -1,4 +1,4 @@
-package org.java.security;
+package com.github.publickey;
 
 import java.security.PublicKey;
 import java.util.HashMap;
@@ -20,8 +20,7 @@ public class PublicKeyStore implements Iterable<Entry<String, PublicKey>> {
 	private boolean changed = false;
 
 	/**
-	 * Create {@link PublicKeyStore} with {@link PublicKeyArchive#MEMORY}
-	 * archive
+	 * Create empty {@link PublicKeyStore}
 	 */
 	public PublicKeyStore() {
 		this.keyStore = new HashMap<String, PublicKey>();

@@ -1,4 +1,4 @@
-package org.java.security;
+package com.github.publickey;
 
 import static org.junit.Assert.*;
 
@@ -13,6 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.github.publickey.PublicKeyPemUtility;
 
 public class PublicKeyPemUtilityTest {
 	private static PublicKey publicKey;
