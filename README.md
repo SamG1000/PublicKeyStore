@@ -39,18 +39,21 @@ Here's an example of the token creation from scratch:
 	archive.store(keyStore);
 ```
 
-The Maven artifacts are deployed with Sonatype at:
-https://oss.sonatype.org/service/local/repositories/releases/content/
+The Maven artifacts are deployed with the root hmaven2 repository at:
+http://repo1.maven.org/maven2/com/github/publickey/public-key-store/
 
 Sample repository configuration
 ```xml
-	<repository>
-		<id>central-sonatype</id>
-		<name>Sonatype Repository Switchboard</name>
-		<layout>default</layout>
-		<url>https://oss.sonatype.org/service/local/repositories/releases/content/</url>
-		<snapshots>
-			<enabled>false</enabled>
-		</snapshots>
-	</repository>
+<repository>
+	<id>central</id>
+	<name>Maven Repository Switchboard</name>
+	<layout>default</layout>
+	<url>http://repo1.maven.org/maven2/</url>
+	<snapshots>
+		<enabled>false</enabled>
+	</snapshots>
+</repository>
 ```
+
+The Maven artifacts are also avaialble through with Sonatype at:
+https://oss.sonatype.org/service/local/repositories/releases/content/
