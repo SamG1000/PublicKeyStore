@@ -38,3 +38,19 @@ Here's an example of the token creation from scratch:
 	PublicKeyZipArchive archive = new PublicKeyZipArchive(file.getAbsolutePath());
 	archive.store(keyStore);
 ```
+
+The Maven artifacts are deployed with Sonatype at:
+https://oss.sonatype.org/service/local/repositories/releases/content/
+
+Sample repository configuration
+```xml
+	<repository>
+		<id>central-sonatype</id>
+		<name>Sonatype Repository Switchboard</name>
+		<layout>default</layout>
+		<url>https://oss.sonatype.org/service/local/repositories/releases/content/</url>
+		<snapshots>
+			<enabled>false</enabled>
+		</snapshots>
+	</repository>
+```
