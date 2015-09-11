@@ -39,7 +39,7 @@ Here's an example of the token creation from scratch:
 	archive.store(keyStore);
 ```
 
-The Maven artifacts are deployed with the root hmaven2 repository at:
+The Maven artifacts are deployed with the Maven Repository Switchboard at:
 http://repo1.maven.org/maven2/com/github/publickey/public-key-store/
 
 Sample repository configuration
